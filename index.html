@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HealthPRO EDW — Pharmacy Bronze DDL (Fabric v1.1)</title>
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #0d1117;
+      color: #e6edf3;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    }
+    header {
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.25rem;
+      color: #e6edf3;
+    }
+    header .badge {
+      background: #238636;
+      color: #fff;
+      font-size: 0.75rem;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+    .meta {
+      padding: 16px 32px;
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      font-size: 0.85rem;
+      color: #8b949e;
+    }
+    .meta span { display: flex; align-items: center; gap: 6px; }
+    .meta strong { color: #e6edf3; }
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 24px 32px;
+    }
+    .changes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .change-card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-size: 0.85rem;
+    }
+    .change-card .label {
+      color: #f85149;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.8rem;
+      margin-bottom: 4px;
+    }
+    .change-card .arrow { color: #3fb950; font-weight: 600; }
+    .change-card .fix { color: #58a6ff; font-family: monospace; }
+    .section-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #8b949e;
+      margin: 0 0 12px 0;
+      font-weight: 600;
+    }
+    .code-header {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-bottom: none;
+      border-radius: 8px 8px 0 0;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: #8b949e;
+    }
+    .code-header .filename { color: #e6edf3; font-family: monospace; }
+    .copy-btn {
+      background: #21262d;
+      border: 1px solid #30363d;
+      color: #e6edf3;
+      padding: 4px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: background 0.15s;
+    }
+    .copy-btn:hover { background: #30363d; }
+    pre {
+      margin: 0;
+      border: 1px solid #30363d;
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      max-height: 720px;
+      overflow-y: auto;
+    }
+    pre code {
+      font-size: 0.78rem;
+      line-height: 1.55;
+      white-space: pre;
+    }
+    footer {
+      border-top: 1px solid #30363d;
+      margin-top: 40px;
+      padding: 24px 32px;
+      text-align: center;
+      font-size: 0.8rem;
+      color: #8b949e;
+    }
+    footer a { color: #58a6ff; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div style="font-size:0.75rem;color:#8b949e;margin-bottom:4px;">HealthPRO Canada EDW</div>
+    <h1>Pharmacy Bronze Layer DDL</h1>
+  </div>
+  <span class="badge">Fabric Compliant v1.1</span>
+</header>
+
+<div class="meta">
+  <span>📅 <strong>2026-06-25</strong></span>
+  <span>🗄️ <strong>Microsoft Fabric Warehouse</strong></span>
+  <span>📦 <strong>9 Bronze tables</strong></span>
+  <span>🔗 Sources: <strong>HPPROD04 ReconnectV2 · D365 CRM · HPData · SharePoint</strong></span>
+</div>
+
+<div class="container">
+
+  <p class="section-title">v1.1 Changes</p>
+  <div class="changes-grid">
+    <div class="change-card">
+      <div class="label">BIGINT IDENTITY</div>
+      <span class="arrow">→</span> <span class="fix">BIGINT NOT NULL</span><br>
+      <span style="color:#8b949e;font-size:0.78rem">IDENTITY removed — surrogate key populated by ELT pipeline</span>
+    </div>
+    <div class="change-card">
+      <div class="label">DATETIME2(7)</div>
+      <span class="arrow">→</span> <span class="fix">DATETIME2(6)</span><br>
+      <span style="color:#8b949e;font-size:0.78rem">36 occurrences across all tables</span>
+    </div>
+    <div class="change-card">
+      <div class="label">TINYINT</div>
+      <span class="arrow">→</span> <span class="fix">SMALLINT</span><br>
+      <span style="color:#8b949e;font-size:0.78rem">FiscalQuarter in tables 3a &amp; 3b</span>
+    </div>
+    <div class="change-card">
+      <div class="label">NULL,,</div>
+      <span class="arrow">→</span> <span class="fix">NULL,</span><br>
+      <span style="color:#8b949e;font-size:0.78rem">Double-comma syntax bug in CurrencyCode (tables 3a &amp; 3b)</span>
+    </div>
+    <div class="change-card">
+      <div class="label">Inline CONSTRAINT PK_…</div>
+      <span class="arrow">→</span> Removed from CREATE TABLE<br>
+      <span style="color:#8b949e;font-size:0.78rem">9× separate ALTER TABLE … NOT ENFORCED added</span>
+    </div>
+  </div>
+
+  <p class="section-title" style="margin-top:28px;">DDL — warehouse/bronze/pharmacy_bronze_fabric_v1_1.sql</p>
+  <div class="code-header">
+    <span class="filename">pharmacy_bronze_fabric_v1_1.sql</span>
+    <button class="copy-btn" onclick="copySQL()">Copy SQL</button>
+  </div>
+  <pre><code class="language-sql" id="sqlblock">-- ============================================================
+-- Microsoft Fabric Data Warehouse
+-- Fabric compliance: VARCHAR · No DEFAULT · BIGINT NOT NULL ·
+--   NONCLUSTERED NOT ENFORCED PKs · DATETIME2(6) · No IDENTITY
+-- ============================================================
+-- =============================================================================
+-- HealthPRO Canada EDW
+-- Pharmacy Bronze Layer DDL — Microsoft Fabric Warehouse
+-- Version  : 1.1
+-- Date     : 2026-06-25
+-- Author   : Project Agent (Fermion)
+-- Dialect  : T-SQL (Microsoft Fabric Warehouse)
+--
+-- Notes:
+--   • Fabric Warehouse does not enforce FK / CHECK / UNIQUE constraints.
+--     They are omitted intentionally — referential integrity is validated
+--     downstream via Silver DQ gates.
+--   • BronzeId surrogate key is BIGINT NOT NULL — populated by the ELT pipeline.
+--   • All source column names should be verified against live schema with:
+--       SELECT TOP 0 * FROM [&lt;source_table&gt;]  -- run on HPPROD04 / HPData / CRM
+--     before first load. Adjust column list here if source schema differs.
+--   • _IngestionTimestamp and _IngestionBatchId are injected by the
+--     Copy Data pipeline using @utcNow() and @pipeline().RunId expressions.
+--   • _SourceRowHash (SHA-256) is computed in Silver, not Bronze.
+--   • Run in a Fabric Warehouse SQL query window (not Lakehouse notebook).
+-- =============================================================================
+
+-- ---------------------------------------------------------------------------
+-- 0. Safety drops (idempotent re-run)
+-- ---------------------------------------------------------------------------
+IF OBJECT_ID(&#x27;dbo.Bronze_RV2_GenCatExport&#x27;,            &#x27;U&#x27;) IS NOT NULL DROP TABLE dbo.Bronze_RV2_GenCatExport;
+IF OBJECT_ID(&#x27;dbo.Bronze_RV2_ProductDetail&#x27;,           &#x27;U&#x27;) IS NOT NULL DROP TABLE dbo.Bronze_RV2_ProductDetail;
+IF OBJECT_ID(&#x27;dbo.Bronze_RV2_MemberDetail&#x27;,            &#x27;U&#x27;) IS NOT NULL DROP TABLE dbo.Bronze_RV2_MemberDetail;
+IF OBJECT_ID(&#x27;dbo.Bronze_RV2_Vendor&#x27;,                  &#x27;U&#x27;) IS NOT NULL DROP TABLE dbo.Bronze_RV2_Vendor;
+IF OBJECT_ID(&#x27;dbo.Bronze_CRM_PHSalesReportDetail&#x27;,     &#x27;U&#x27;) IS NOT NULL DROP TABLE dbo.Bronze_CRM_PHSalesReportDetail;
+IF OBJECT_ID(&#x27;dbo.Bronze_CRM_PHDividends&#x27;,             &#x27;U&#x27;) IS NOT NULL DROP TABLE dbo.Bronze_CRM_PHDividends;
+IF OBJECT_ID(&#x27;dbo.Bronze_HPData_PHSalesDataSnapshot&#x27;,  &#x27;U&#x27;) IS NOT NULL DROP TABLE dbo.Bronze_HPData_PHSalesDataSnapshot;
+IF OBJECT_ID(&#x27;dbo.Bronze_HPData_PHDividendsSnapshot&#x27;,  &#x27;U&#x27;) IS NOT NULL DROP TABLE dbo.Bronze_HPData_PHDividendsSnapshot;
+IF OBJECT_ID(&#x27;dbo.Bronze_SP_DrugShortage&#x27;,             &#x27;U&#x27;) IS NOT NULL DROP TABLE dbo.Bronze_SP_DrugShortage;
+
+-- =============================================================================
+-- 1. HPPROD04.ReconnectV2 — Legacy On-Premises Pharmacy Operations
+--    Source  : HPPROD04 (SQL Server on-prem)
+--    Database: ReconnectV2
+--    Ingest  : OPDG → Fabric Pipeline Copy Data (full-copy, daily 02:00 ET)
+-- =============================================================================
+
+-- ---------------------------------------------------------------------------
+-- 1a. Bronze_RV2_GenCatExport
+--     Source view: [ReconnectV2].[dbo].[View_GENCATExportWithoutDistributors]
+--     Content: Generic-category contract pricing export, distributor rows excluded
+-- ---------------------------------------------------------------------------
+CREATE TABLE dbo.Bronze_RV2_GenCatExport
+(
+    -- Surrogate key
+    BronzeId                BIGINT          NOT NULL,
+    -- Source columns (verify names against live view before first load)
+    DIN                     VARCHAR(20)         NULL,   -- Drug Identification Number
+    ProductName             VARCHAR(255)        NULL,
+    GenericName             VARCHAR(255)        NULL,
+    ManufacturerCode        VARCHAR(50)         NULL,
+    ManufacturerName        VARCHAR(255)        NULL,
+    GenericCategoryCode     VARCHAR(50)         NULL,
+    GenericCategoryDesc     VARCHAR(255)        NULL,
+    ProductStrength         VARCHAR(100)        NULL,
+    DosageForm              VARCHAR(100)        NULL,
+    PackSize                VARCHAR(50)         NULL,
+    IsGeneric               BIT                 NULL,
+    ContractPrice           DECIMAL(18,4)       NULL,
+    WholesalePrice          DECIMAL(18,4)       NULL,
+    PriceEffectiveDate      DATE                NULL,
+    PriceExpiryDate         DATE                NULL,
+    ContractId              VARCHAR(50)         NULL,
+    ProgramCode             VARCHAR(50)         NULL,
+    IsActive                BIT                 NULL,
+    SourceCreatedDate       DATETIME2(6)        NULL,
+    SourceModifiedDate      DATETIME2(6)        NULL,
+    -- ETL metadata
+    _SourceSystem           VARCHAR(100)    NOT NULL,
+    _SourceTable            VARCHAR(200)    NOT NULL,
+    _IngestionTimestamp     DATETIME2(6)    NOT NULL,
+    _IngestionBatchId       VARCHAR(100)        NULL,   -- @pipeline().RunId from Copy Data
+    _IsDeleted              BIT             NOT NULL,
+    _SourceRowHash          VARCHAR(64)         NULL    -- SHA-256 set in Silver
+);
+ALTER TABLE [dbo].[Bronze_RV2_GenCatExport] ADD CONSTRAINT [PK_Bronze_RV2_GenCatExport] PRIMARY KEY NONCLUSTERED ([BronzeId]) NOT ENFORCED;
+
+-- ---------------------------------------------------------------------------
+-- 1b. Bronze_RV2_ProductDetail
+--     Source table: [ReconnectV2].[dbo].[Tbl_ProductDetail]
+--     Content: Product master — DIN, dosage, manufacturer, pack details
+-- ---------------------------------------------------------------------------
+CREATE TABLE dbo.Bronze_RV2_ProductDetail
+(
+    BronzeId                BIGINT          NOT NULL,
+    ProductId               INT                 NULL,   -- Source PK
+    DIN                     VARCHAR(20)         NULL,
+    UPC                     VARCHAR(50)         NULL,
+    ProductName             VARCHAR(255)        NULL,
+    GenericName             VARCHAR(255)        NULL,
+    BrandName               VARCHAR(255)        NULL,
+    ManufacturerId          INT                 NULL,
+    ManufacturerName        VARCHAR(255)        NULL,
+    ProductCategoryCode     VARCHAR(50)         NULL,
+    ProductCategoryDesc     VARCHAR(255)        NULL,
+    Strength                VARCHAR(100)        NULL,
+    DosageForm              VARCHAR(100)        NULL,
+    RouteOfAdmin            VARCHAR(100)        NULL,
+    PackSize                VARCHAR(50)         NULL,
+    PackType                VARCHAR(50)         NULL,
+    IsGeneric               BIT                 NULL,
+    IsNarcotic              BIT                 NULL,
+    IsControlled            BIT                 NULL,
+    ScheduleCode            VARCHAR(20)         NULL,
+    TherapeuticClass        VARCHAR(100)        NULL,
+    ATC_Code                VARCHAR(20)         NULL,
+    IsActive                BIT                 NULL,
+    DiscontinuedDate        DATE                NULL,
+    SourceCreatedDate       DATETIME2(6)        NULL,
+    SourceModifiedDate      DATETIME2(6)        NULL,
+    _SourceSystem           VARCHAR(100)    NOT NULL,
+    _SourceTable            VARCHAR(200)    NOT NULL,
+    _IngestionTimestamp     DATETIME2(6)    NOT NULL,
+    _IngestionBatchId       VARCHAR(100)        NULL,
+    _IsDeleted              BIT             NOT NULL,
+    _SourceRowHash          VARCHAR(64)         NULL
+);
+ALTER TABLE [dbo].[Bronze_RV2_ProductDetail] ADD CONSTRAINT [PK_Bronze_RV2_ProductDetail] PRIMARY KEY NONCLUSTERED ([BronzeId]) NOT ENFORCED;
+
+-- ---------------------------------------------------------------------------
+-- 1c. Bronze_RV2_MemberDetail
+--     Source table: [ReconnectV2].[dbo].[View_MemberDetail]
+--     Content: Member/pharmacy profile — licensing, banner, location, status
+-- ---------------------------------------------------------------------------
+CREATE TABLE dbo.Bronze_RV2_MemberDetail
+(
+    BronzeId                BIGINT          NOT NULL,
+    MemberId                INT                 NULL,   -- Source PK
+    MemberCode              VARCHAR(50)         NULL,
+    MemberName              VARCHAR(255)        NULL,
+    LicenseNumber           VARCHAR(100)        NULL,
+    BannerGroupCode         VARCHAR(50)         NULL,
+    BannerGroupName         VARCHAR(255)        NULL,
+    MemberTypeCode          VARCHAR(50)         NULL,
+    MemberTypeDesc          VARCHAR(100)        NULL,
+    OwnerFirstName          VARCHAR(100)        NULL,
+    OwnerLastName           VARCHAR(100)        NULL,
+    AddressLine1            VARCHAR(255)        NULL,
+    AddressLine2            VARCHAR(255)        NULL,
+    City                    VARCHAR(100)        NULL,
+    ProvinceCode            VARCHAR(10)         NULL,
+    PostalCode              VARCHAR(20)         NULL,
+    Phone                   VARCHAR(50)         NULL,
+    Fax                     VARCHAR(50)         NULL,
+    Email                   VARCHAR(255)        NULL,
+    RegionCode              VARCHAR(50)         NULL,
+    RegionName              VARCHAR(100)        NULL,
+    TerritoryCode           VARCHAR(50)         NULL,
+    TerritoryName           VARCHAR(100)        NULL,
+    JoinDate                DATE                NULL,
+    RenewalDate             DATE                NULL,
+    ExpiryDate              DATE                NULL,
+    IsActive                BIT                 NULL,
+    SourceCreatedDate       DATETIME2(6)        NULL,
+    SourceModifiedDate      DATETIME2(6)        NULL,
+    _SourceSystem           VARCHAR(100)    NOT NULL,
+    _SourceTable            VARCHAR(200)    NOT NULL,
+    _IngestionTimestamp     DATETIME2(6)    NOT NULL,
+    _IngestionBatchId       VARCHAR(100)        NULL,
+    _IsDeleted              BIT             NOT NULL,
+    _SourceRowHash          VARCHAR(64)         NULL
+);
+ALTER TABLE [dbo].[Bronze_RV2_MemberDetail] ADD CONSTRAINT [PK_Bronze_RV2_MemberDetail] PRIMARY KEY NONCLUSTERED ([BronzeId]) NOT ENFORCED;
+
+-- ---------------------------------------------------------------------------
+-- 1d. Bronze_RV2_Vendor
+--     Source table: [ReconnectV2].[dbo].[Tbl_Vendor]
+--     Content: Supplier/distributor master
+-- ---------------------------------------------------------------------------
+CREATE TABLE dbo.Bronze_RV2_Vendor
+(
+    BronzeId                BIGINT          NOT NULL,
+    VendorId                INT                 NULL,   -- Source PK
+    VendorCode              VARCHAR(50)         NULL,
+    VendorName              VARCHAR(255)        NULL,
+    VendorType              VARCHAR(100)        NULL,
+    ContactName             VARCHAR(255)        NULL,
+    ContactTitle            VARCHAR(100)        NULL,
+    AddressLine1            VARCHAR(255)        NULL,
+    AddressLine2            VARCHAR(255)        NULL,
+    City                    VARCHAR(100)        NULL,
+    ProvinceCode            VARCHAR(10)         NULL,
+    PostalCode              VARCHAR(20)         NULL,
+    Phone                   VARCHAR(50)         NULL,
+    Fax                     VARCHAR(50)         NULL,
+    Email                   VARCHAR(255)        NULL,
+    Website                 VARCHAR(500)        NULL,
+    GLN                     VARCHAR(50)         NULL,   -- Global Location Number
+    IsActive                BIT                 NULL,
+    SourceCreatedDate       DATETIME2(6)        NULL,
+    SourceModifiedDate      DATETIME2(6)        NULL,
+    _SourceSystem           VARCHAR(100)    NOT NULL,
+    _SourceTable            VARCHAR(200)    NOT NULL,
+    _IngestionTimestamp     DATETIME2(6)    NOT NULL,
+    _IngestionBatchId       VARCHAR(100)        NULL,
+    _IsDeleted              BIT             NOT NULL,
+    _SourceRowHash          VARCHAR(64)         NULL
+);
+ALTER TABLE [dbo].[Bronze_RV2_Vendor] ADD CONSTRAINT [PK_Bronze_RV2_Vendor] PRIMARY KEY NONCLUSTERED ([BronzeId]) NOT ENFORCED;
+
+-- =============================================================================
+-- 2. D365 CRM / Dataverse — Active Pharmacy Sales &amp; Dividends
+--    Source  : Microsoft Dataverse (cloud)
+--    Ingest  : Fabric Pipeline Copy Data, Dataverse connector (no OPDG needed)
+--    Note    : CRM column names follow hp_ prefix naming convention
+-- =============================================================================
+
+-- ---------------------------------------------------------------------------
+-- 2a. Bronze_CRM_PHSalesReportDetail
+--     Source entity: hp_salesreportdetail
+--     Content: Pharmacy sales report lines — post-April 2024 live source
+-- ---------------------------------------------------------------------------
+CREATE TABLE dbo.Bronze_CRM_PHSalesReportDetail
+(
+    BronzeId                BIGINT          NOT NULL,
+    -- CRM natural key
+    hp_salesreportdetailid  VARCHAR(50)         NULL,   -- Dataverse record GUID
+    hp_name                 VARCHAR(255)        NULL,
+    -- Business columns
+    hp_memberid             VARCHAR(50)         NULL,
+    hp_memberid_name        VARCHAR(255)        NULL,
+    hp_productdin           VARCHAR(20)         NULL,
+    hp_productid            VARCHAR(50)         NULL,   -- CRM product lookup GUID
+    hp_productid_name       VARCHAR(255)        NULL,
+    hp_quantity             DECIMAL(18,4)       NULL,
+    hp_salesamount          DECIMAL(18,4)       NULL,
+    hp_netamount            DECIMAL(18,4)       NULL,
+    hp_rebateamount         DECIMAL(18,4)       NULL,
+    hp_reportperiod         VARCHAR(20)         NULL,   -- e.g. &#x27;2024-05&#x27;
+    hp_reportdate           DATE                NULL,
+    hp_salesrepid           VARCHAR(50)         NULL,
+    hp_salesrep_name        VARCHAR(255)        NULL,
+    hp_territory            VARCHAR(100)        NULL,
+    hp_programid            VARCHAR(50)         NULL,
+    hp_program_name         VARCHAR(255)        NULL,
+    hp_currencycode         VARCHAR(10)         NULL,
+    -- Standard CRM system columns
+    statecode               INT                 NULL,   -- 0=Active, 1=Inactive
+    statuscode              INT                 NULL,
+    createdon               DATETIME2(6)        NULL,
+    modifiedon              DATETIME2(6)        NULL,
+    createdby               VARCHAR(255)        NULL,
+    modifiedby              VARCHAR(255)        NULL,
+    ownerid                 VARCHAR(50)         NULL,
+    ownerid_name            VARCHAR(255)        NULL,
+    _SourceSystem           VARCHAR(100)    NOT NULL,
+    _SourceTable            VARCHAR(200)    NOT NULL,
+    _IngestionTimestamp     DATETIME2(6)    NOT NULL,
+    _IngestionBatchId       VARCHAR(100)        NULL,
+    _IsDeleted              BIT             NOT NULL,
+    _SourceRowHash          VARCHAR(64)         NULL
+);
+ALTER TABLE [dbo].[Bronze_CRM_PHSalesReportDetail] ADD CONSTRAINT [PK_Bronze_CRM_PHSalesReportDetail] PRIMARY KEY NONCLUSTERED ([BronzeId]) NOT ENFORCED;
+
+-- ---------------------------------------------------------------------------
+-- 2b. Bronze_CRM_PHDividends
+--     Source entity: hp_Dividends
+--     Content: Pharmacy dividend records — post-FY2024 live source
+-- ---------------------------------------------------------------------------
+CREATE TABLE dbo.Bronze_CRM_PHDividends
+(
+    BronzeId                BIGINT          NOT NULL,
+    hp_dividendsid          VARCHAR(50)         NULL,   -- Dataverse record GUID
+    hp_name                 VARCHAR(255)        NULL,
+    hp_memberid             VARCHAR(50)         NULL,
+    hp_memberid_name        VARCHAR(255)        NULL,
+    hp_programid            VARCHAR(50)         NULL,
+    hp_program_name         VARCHAR(255)        NULL,
+    hp_dividendamount       DECIMAL(18,4)       NULL,
+    hp_calculatedamount     DECIMAL(18,4)       NULL,
+    hp_adjustmentamount     DECIMAL(18,4)       NULL,
+    hp_periodstart          DATE                NULL,
+    hp_periodend            DATE                NULL,
+    hp_fiscalyear           VARCHAR(10)         NULL,   -- e.g. &#x27;FY2025&#x27;
+    hp_paymentdate          DATE                NULL,
+    hp_paymentstatus        VARCHAR(50)         NULL,
+    hp_chequeNumber         VARCHAR(50)         NULL,
+    hp_notes                VARCHAR(2000)       NULL,
+    hp_currencycode         VARCHAR(10)         NULL,
+    statecode               INT                 NULL,
+    statuscode              INT                 NULL,
+    createdon               DATETIME2(6)        NULL,
+    modifiedon              DATETIME2(6)        NULL,
+    createdby               VARCHAR(255)        NULL,
+    modifiedby              VARCHAR(255)        NULL,
+    ownerid                 VARCHAR(50)         NULL,
+    ownerid_name            VARCHAR(255)        NULL,
+    _SourceSystem           VARCHAR(100)    NOT NULL,
+    _SourceTable            VARCHAR(200)    NOT NULL,
+    _IngestionTimestamp     DATETIME2(6)    NOT NULL,
+    _IngestionBatchId       VARCHAR(100)        NULL,
+    _IsDeleted              BIT             NOT NULL,
+    _SourceRowHash          VARCHAR(64)         NULL
+);
+ALTER TABLE [dbo].[Bronze_CRM_PHDividends] ADD CONSTRAINT [PK_Bronze_CRM_PHDividends] PRIMARY KEY NONCLUSTERED ([BronzeId]) NOT ENFORCED;
+
+-- =============================================================================
+-- 3. HPData — BI Staging Layer Snapshots (one-time historical load)
+--    Source  : HPData SQL Server (on-prem, access via OPDG)
+--    Ingest  : Pipeline PL_Bronze_HPData_SnapshotLoad — run ONCE then disable
+--    Note    : HPData is a BI staging layer, NOT a raw source.
+--              These tables are point-in-time snapshots for historical baseline
+--              only. Ongoing data flows from D365 CRM after cutover dates.
+-- =============================================================================
+
+-- ---------------------------------------------------------------------------
+-- 3a. Bronze_HPData_PHSalesDataSnapshot
+--     Source table: [HPData].[dbo].[PHSalesData]
+--     Content: Historical pharmacy sales — pre-April 2024 baseline
+--              Cutover date: 2024-04-01 (confirm with Kathy)
+-- ---------------------------------------------------------------------------
+CREATE TABLE dbo.Bronze_HPData_PHSalesDataSnapshot
+(
+    BronzeId                BIGINT          NOT NULL,
+    -- Source columns (verify against HPData schema)
+    SalesId                 INT                 NULL,
+    MemberId                INT                 NULL,
+    MemberCode              VARCHAR(50)         NULL,
+    ProductDIN              VARCHAR(20)         NULL,
+    ProductName             VARCHAR(255)        NULL,
+    ProgramCode             VARCHAR(50)         NULL,
+    ProgramName             VARCHAR(255)        NULL,
+    SalesPeriod             VARCHAR(20)         NULL,   -- e.g. &#x27;2024-03&#x27;
+    SalesDate               DATE                NULL,
+    Quantity                DECIMAL(18,4)       NULL,
+    SalesAmount             DECIMAL(18,4)       NULL,
+    NetAmount               DECIMAL(18,4)       NULL,
+    RebateAmount            DECIMAL(18,4)       NULL,
+    SalesRepCode            VARCHAR(50)         NULL,
+    SalesRepName            VARCHAR(255)        NULL,
+    TerritoryCode           VARCHAR(50)         NULL,
+    CurrencyCode            VARCHAR(10)         NULL,   -- BUG FIX: removed double comma
+    FiscalYear              INT                 NULL,
+    FiscalQuarter           SMALLINT            NULL,   -- TINYINT → SMALLINT
+    LoadDate                DATETIME2(6)        NULL,   -- HPData pipeline load date
+    _SourceSystem           VARCHAR(100)    NOT NULL,
+    _SourceTable            VARCHAR(200)    NOT NULL,
+    _IngestionTimestamp     DATETIME2(6)    NOT NULL,
+    _IngestionBatchId       VARCHAR(100)        NULL,
+    _IsDeleted              BIT             NOT NULL,
+    _SnapshotType           VARCHAR(20)     NOT NULL,   -- FULL (one-time)
+    _SourceRowHash          VARCHAR(64)         NULL
+);
+ALTER TABLE [dbo].[Bronze_HPData_PHSalesDataSnapshot] ADD CONSTRAINT [PK_Bronze_HPData_PHSalesDataSnapshot] PRIMARY KEY NONCLUSTERED ([BronzeId]) NOT ENFORCED;
+
+-- ---------------------------------------------------------------------------
+-- 3b. Bronze_HPData_PHDividendsSnapshot
+--     Source table: [HPData].[dbo].[PHDividends] (or equivalent)
+--     Content: Historical dividend records — pre-FY2024 baseline
+--              Cutover fiscal year: FY2024 (confirm with Kathy)
+-- ---------------------------------------------------------------------------
+CREATE TABLE dbo.Bronze_HPData_PHDividendsSnapshot
+(
+    BronzeId                BIGINT          NOT NULL,
+    DividendId              INT                 NULL,
+    MemberId                INT                 NULL,
+    MemberCode              VARCHAR(50)         NULL,
+    ProgramCode             VARCHAR(50)         NULL,
+    ProgramName             VARCHAR(255)        NULL,
+    DividendAmount          DECIMAL(18,4)       NULL,
+    AdjustmentAmount        DECIMAL(18,4)       NULL,
+    NetDividendAmount       DECIMAL(18,4)       NULL,
+    PeriodStart             DATE                NULL,
+    PeriodEnd               DATE                NULL,
+    FiscalYear              VARCHAR(10)         NULL,   -- e.g. &#x27;FY2024&#x27;
+    FiscalQuarter           SMALLINT            NULL,   -- TINYINT → SMALLINT
+    PaymentDate             DATE                NULL,
+    PaymentStatus           VARCHAR(50)         NULL,
+    ChequeNumber            VARCHAR(50)         NULL,
+    CurrencyCode            VARCHAR(10)         NULL,   -- BUG FIX: removed double comma
+    Notes                   VARCHAR(2000)       NULL,
+    LoadDate                DATETIME2(6)        NULL,
+    _SourceSystem           VARCHAR(100)    NOT NULL,
+    _SourceTable            VARCHAR(200)    NOT NULL,
+    _IngestionTimestamp     DATETIME2(6)    NOT NULL,
+    _IngestionBatchId       VARCHAR(100)        NULL,
+    _IsDeleted              BIT             NOT NULL,
+    _SnapshotType           VARCHAR(20)     NOT NULL,
+    _SourceRowHash          VARCHAR(64)         NULL
+);
+ALTER TABLE [dbo].[Bronze_HPData_PHDividendsSnapshot] ADD CONSTRAINT [PK_Bronze_HPData_PHDividendsSnapshot] PRIMARY KEY NONCLUSTERED ([BronzeId]) NOT ENFORCED;
+
+-- =============================================================================
+-- 4. SharePoint — Drug Shortage (Phase 3 placeholder)
+--    Source  : SharePoint list / document library (URL TBD — confirm with Ryan)
+--    Ingest  : Fabric Pipeline, SharePoint Online connector
+--    Note    : Schema is TBD. Columns below are placeholders based on
+--              Health Canada drug shortage reporting standard fields.
+--              Update this table definition once Ryan provides the SP schema.
+-- =============================================================================
+
+-- ---------------------------------------------------------------------------
+-- 4a. Bronze_SP_DrugShortage
+--     Source: SharePoint Drug Shortage list
+-- ---------------------------------------------------------------------------
+CREATE TABLE dbo.Bronze_SP_DrugShortage
+(
+    BronzeId                BIGINT          NOT NULL,
+    -- SharePoint standard columns
+    SP_ItemId               INT                 NULL,   -- SharePoint list item ID
+    SP_Title                VARCHAR(500)        NULL,
+    SP_Created              DATETIME2(6)        NULL,
+    SP_Modified             DATETIME2(6)        NULL,
+    SP_Author               VARCHAR(255)        NULL,
+    SP_Editor               VARCHAR(255)        NULL,
+    -- Drug shortage domain columns (placeholder — verify with Ryan / Health Canada feed)
+    DIN                     VARCHAR(20)         NULL,
+    ProductName             VARCHAR(255)        NULL,
+    CompanyName             VARCHAR(255)        NULL,
+    ShortageType            VARCHAR(100)        NULL,   -- Actual / Anticipated
+    ShortageReason          VARCHAR(500)        NULL,
+    AnticipatedStartDate    DATE                NULL,
+    AnticipatedEndDate      DATE                NULL,
+    ActualStartDate         DATE                NULL,
+    ActualResolvedDate      DATE                NULL,
+    Status                  VARCHAR(50)         NULL,   -- Active / Resolved / Discontinued
+    AlternativeAvailable    BIT                 NULL,
+    AlternativeDIN          VARCHAR(20)         NULL,
+    ImpactLevel             VARCHAR(50)         NULL,   -- Low / Medium / High / Critical
+    Notes                   VARCHAR(2000)       NULL,
+    HealthCanadaLink        VARCHAR(1000)       NULL,
+    _SourceSystem           VARCHAR(100)    NOT NULL,
+    _SourceTable            VARCHAR(200)    NOT NULL,
+    _IngestionTimestamp     DATETIME2(6)    NOT NULL,
+    _IngestionBatchId       VARCHAR(100)        NULL,
+    _IsDeleted              BIT             NOT NULL,
+    _SourceRowHash          VARCHAR(64)         NULL
+);
+ALTER TABLE [dbo].[Bronze_SP_DrugShortage] ADD CONSTRAINT [PK_Bronze_SP_DrugShortage] PRIMARY KEY NONCLUSTERED ([BronzeId]) NOT ENFORCED;
+
+-- =============================================================================
+-- 5. Silver UNION View stubs
+--    These are created AFTER Bronze tables are loaded and cutover dates
+--    confirmed with Kathy. Uncomment and execute at that point.
+--
+--    FactPHSales cutover  : 2024-04-01 (assumed — confirm with Kathy)
+--    FactPHDividends cutover: FY2024   (assumed — confirm with Kathy)
+-- =============================================================================
+/*
+-- Silver_vw_PHSalesUnion: Combines pre-cutover (HPData) + post-cutover (CRM)
+CREATE OR ALTER VIEW dbo.Silver_vw_PHSalesUnion AS
+    -- Pre-cutover: HPData historical snapshot
+    SELECT
+        BronzeId,
+        MemberId                AS MemberId,
+        NULL                    AS CRM_RecordId,
+        ProductDIN,
+        ProductName,
+        ProgramCode,
+        SalesPeriod,
+        SalesDate,
+        Quantity,
+        SalesAmount,
+        NetAmount,
+        RebateAmount,
+        SalesRepCode,
+        TerritoryCode,
+        CurrencyCode,
+        FiscalYear,
+        &#x27;HPData&#x27;                AS SourceSystem,
+        _IngestionTimestamp
+    FROM dbo.Bronze_HPData_PHSalesDataSnapshot
+    WHERE SalesDate &lt; &#x27;2024-04-01&#x27;   -- confirm with Kathy
+UNION ALL
+    -- Post-cutover: D365 CRM live
+    SELECT
+        BronzeId,
+        hp_memberid             AS MemberId,
+        hp_salesreportdetailid  AS CRM_RecordId,
+        hp_productdin           AS ProductDIN,
+        hp_productid_name       AS ProductName,
+        hp_program_name         AS ProgramCode,
+        hp_reportperiod         AS SalesPeriod,
+        hp_reportdate           AS SalesDate,
+        hp_quantity             AS Quantity,
+        hp_salesamount          AS SalesAmount,
+        hp_netamount            AS NetAmount,
+        hp_rebateamount         AS RebateAmount,
+        hp_salesrep_name        AS SalesRepCode,
+        hp_territory            AS TerritoryCode,
+        hp_currencycode         AS CurrencyCode,
+        YEAR(hp_reportdate)     AS FiscalYear,
+        &#x27;D365.CRM&#x27;              AS SourceSystem,
+        _IngestionTimestamp
+    FROM dbo.Bronze_CRM_PHSalesReportDetail
+    WHERE hp_reportdate &gt;= &#x27;2024-04-01&#x27;;  -- confirm with Kathy
+
+-- Silver_vw_PHDividendsUnion: Combines pre-FY2024 (HPData) + post-FY2024 (CRM)
+CREATE OR ALTER VIEW dbo.Silver_vw_PHDividendsUnion AS
+    -- Pre-cutover: HPData historical snapshot
+    SELECT
+        BronzeId,
+        MemberId                AS MemberId,
+        NULL                    AS CRM_RecordId,
+        ProgramCode,
+        DividendAmount,
+        AdjustmentAmount,
+        NetDividendAmount,
+        PeriodStart,
+        PeriodEnd,
+        FiscalYear,
+        PaymentDate,
+        PaymentStatus,
+        CurrencyCode,
+        &#x27;HPData&#x27;                AS SourceSystem,
+        _IngestionTimestamp
+    FROM dbo.Bronze_HPData_PHDividendsSnapshot
+    WHERE FiscalYear &lt; &#x27;FY2024&#x27;    -- confirm with Kathy
+UNION ALL
+    -- Post-cutover: D365 CRM live
+    SELECT
+        BronzeId,
+        hp_memberid             AS MemberId,
+        hp_dividendsid          AS CRM_RecordId,
+        hp_program_name         AS ProgramCode,
+        hp_dividendamount       AS DividendAmount,
+        hp_adjustmentamount     AS AdjustmentAmount,
+        hp_calculatedamount     AS NetDividendAmount,
+        hp_periodstart          AS PeriodStart,
+        hp_periodend            AS PeriodEnd,
+        hp_fiscalyear           AS FiscalYear,
+        hp_paymentdate          AS PaymentDate,
+        hp_paymentstatus        AS PaymentStatus,
+        hp_currencycode         AS CurrencyCode,
+        &#x27;D365.CRM&#x27;              AS SourceSystem,
+        _IngestionTimestamp
+    FROM dbo.Bronze_CRM_PHDividends
+    WHERE hp_periodend &gt;= &#x27;2024-04-01&#x27;;  -- align to FY2024 start — confirm with Kathy
+*/
+
+-- =============================================================================
+-- END OF FILE
+-- Version history:
+--   v1.0  2026-06-20  Initial Fabric Warehouse DDL (9 Bronze tables + 2 Silver stubs)
+--   v1.1  2026-06-25  Fabric compliance pass:
+--                     • IDENTITY removed → BIGINT NOT NULL
+--                     • DATETIME2(7) → DATETIME2(6) (all columns)
+--                     • TINYINT → SMALLINT (FiscalQuarter)
+--                     • Inline CONSTRAINT removed from CREATE TABLE
+--                     • ALTER TABLE ... PRIMARY KEY NONCLUSTERED NOT ENFORCED added
+--                     • Double-comma syntax bug fixed (CurrencyCode in snapshot tables)
+-- =============================================================================
+</code></pre>
+
+</div>
+
+<footer>
+  HealthPRO Canada EDW &nbsp;·&nbsp;
+  <a href="https://github.com/gumobrien-arch/healthpro-edw/blob/main/warehouse/bronze/pharmacy_bronze_fabric_v1_1.sql" target="_blank">View on GitHub</a>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
+<script>
+function copySQL() {
+  const code = document.getElementById('sqlblock').innerText;
+  navigator.clipboard.writeText(code).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy SQL', 2000);
+  });
+}
+</script>
+
+</body>
+</html>
